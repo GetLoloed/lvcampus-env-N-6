@@ -1,7 +1,9 @@
 import pytest
 import subprocess
 import platform
+
 from docker import is_docker_installed, is_docker_service_running, check_docker, create_docker_container, install_links
+
 
 @pytest.fixture
 def mock_subprocess_run(mocker):

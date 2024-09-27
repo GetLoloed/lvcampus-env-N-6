@@ -40,7 +40,7 @@ def is_docker_service_running():
         print_success("Docker est actif et répond correctement.")
         return True
     except subprocess.CalledProcessError:
-        print_error("Docker est installé mais ne répond pas correctement.")
+        print_error("Docker est installé mais n'est pas lancé. Veuillez lancer Docker Desktop et recommencer")
         return False
     except subprocess.TimeoutExpired:
         print_error("La commande Docker a expiré. Docker pourrait être bloqué ou ne pas répondre.")
