@@ -1,13 +1,9 @@
 import pytest
 import subprocess
 import platform
-<<<<<<< HEAD
-from docker import is_docker_installed, is_docker_service_running
-from vbox import is_virtualbox_installed
 
-=======
 from docker import is_docker_installed, is_docker_service_running, check_docker, create_docker_container, install_links
->>>>>>> main
+
 
 @pytest.fixture
 def mock_subprocess_run(mocker):
