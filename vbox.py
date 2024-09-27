@@ -103,7 +103,10 @@ def create_virtual_machine():
         
         print("Téléchargement de l'ISO Linux...")
         iso_url = "https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-12.7.0-amd64-netinst.iso"
-        iso_destination = os.path.join(os.environ['HOME'], "debian.iso")
+        if 'HOME' in os.environ:
+            iso_destination = os.path.join(os.environ['HOME'], "debian.iso")
+        else:
+            iso_destination = os.path.join(os.path.expanduser('~'), "debian.iso")
         subprocess.run(["wget", "-O", iso_destination, iso_url], check=True)
         print("Téléchargement de l'ISO terminé.")
 

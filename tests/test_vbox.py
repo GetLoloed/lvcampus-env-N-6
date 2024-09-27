@@ -10,7 +10,7 @@ from vbox import vbox_install, create_virtual_machine, is_virtualbox_installed
 ])
 def test_vbox_install_creer_vm(mocker, choix_installation, nom_vm):
     # Simuler les entrées utilisateur
-    entrees_simulees = [choix_installation, nom_vm]
+    entrees_simulees = [choix_installation, nom_vm] * 2  # Doubler les entrées pour Windows et Linux
     mocker.patch("builtins.input", side_effect=entrees_simulees)
     
     # Simuler subprocess.run
@@ -18,6 +18,9 @@ def test_vbox_install_creer_vm(mocker, choix_installation, nom_vm):
     mock_subprocess.return_value.returncode = 0
     mock_subprocess.return_value.stdout = f'"{nom_vm}"'
     
+
+    # Simuler os.path.expanduser
+    mocker.patch("os.path.expanduser", return_value="/home/user")
 
     # Simuler platform.system pour tester sur Windows et Linux
     systemes = ["Windows", "Linux"]
