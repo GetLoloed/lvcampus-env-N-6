@@ -1,6 +1,18 @@
 import platform
-import os
 import subprocess
+from colorama import init, Fore, Style
+
+# Initialiser colorama
+init(autoreset=True)
+
+def print_success(message):
+    print(Fore.GREEN + Style.BRIGHT + message)
+
+def print_error(message):
+    print(Fore.RED + Style.BRIGHT + message)
+
+def print_info(message):
+    print(Fore.YELLOW + Style.BRIGHT + message)
 
 def obtenir_OS_info():
     os_info = platform.uname()
@@ -10,107 +22,54 @@ def obtenir_OS_info():
     }
     return system_info
 
-def is_virtualbox_installed():
-    """Vérifie si VirtualBox est installé en utilisant la commande 'vboxmanage' pour Linux et Windows."""
-    try:
-        if platform.system() == "Windows":
-            # Commande pour vérifier VirtualBox sur Windows
-            vboxmanage = r"C:\Program Files\Oracle\VirtualBox\VBoxManage.exe"
-            print(f"Vérification de l'installation de VirtualBox à l'emplacement: {vboxmanage}")
-            subprocess.run([vboxmanage, '--version'], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-        elif platform.system() == "Linux":
-            # Commande pour vérifier VirtualBox sur Linux
-            print("Vérification de l'installation de VirtualBox avec 'vboxmanage'.")
-            subprocess.run(['vboxmanage', '--version'], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            
-        else:
-            print("OS non pris en compte")
-            return False
-        return True
-    except (subprocess.CalledProcessError, FileNotFoundError) as e:
-        print(f"Erreur lors de la vérification de VirtualBox: {e}")
-        return False
-    
 def is_docker_installed():
     """Vérifie si Docker est installé."""
     try:
         subprocess.run(["docker", "--version"], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        print("Docker Desktop est installé.")
+        print_success("Docker Desktop est installé.")
         return True
     except subprocess.CalledProcessError:
+        print_error("Docker n'est pas installé.")
         return False
-    
 
 def is_docker_service_running():
-    """Vérifie si le service Docker est actif."""
+    """Vérifie si Docker est actif en exécutant une commande simple."""
     try:
-        if platform.system() == "Linux":
-            print("Vérification de l'état du service Docker sur Linux.")
-            result = subprocess.run(['systemctl', 'is-active', '--quiet', 'docker'])
-            return result.returncode == 0
-        elif platform.system() == "Windows":
-            print("Vérification de l'état du service Docker sur Windows.")
-            result = subprocess.run(['sc', 'query', 'docker'], capture_output=True, text=True)
-            print(f"Sortie de la commande: {result.stdout}")
-            return "RUNNING" in result.stdout
-        else:
-            print("Vérification du service Docker n'est pas supportée pour cet OS.")
-            return False
+        subprocess.run(['docker', 'info'], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=10)
+        print_success("Docker est actif et répond correctement.")
+        return True
+    except subprocess.CalledProcessError:
+        print_error("Docker est installé mais ne répond pas correctement.")
+        return False
+    except subprocess.TimeoutExpired:
+        print_error("La commande Docker a expiré. Docker pourrait être bloqué ou ne pas répondre.")
+        return False
+    except FileNotFoundError:
+        print_error("La commande Docker n'a pas été trouvée. Docker pourrait ne pas être installé correctement.")
+        return False
     except Exception as e:
-        print(f"Erreur lors de la vérification du service Docker : {e}")
+        print_error(f"Une erreur inattendue s'est produite lors de la vérification de Docker : {e}")
         return False
 
 def install_links(os_type):
-    """Renvoie les liens de téléchargement pour VirtualBox et Docker selon le système d'exploitation."""
-    if os_type == "Windows":
-        return {
-            "VirtualBox": "https://www.virtualbox.org/wiki/Downloads",
-            "Docker": "https://www.docker.com/products/docker-desktop"
-        }
+    """Renvoie le lien de téléchargement pour Docker selon le système d'exploitation."""
+    if os_type == "Windows" or os_type == "Darwin":
+        return "https://www.docker.com/products/docker-desktop"
     elif os_type == "Linux":
-        return {
-            "VirtualBox": "https://www.virtualbox.org/wiki/Downloads",
-            "Docker": "https://docs.docker.com/engine/install/"
-        }
-    elif os_type == "Darwin":
-        return {
-            "VirtualBox": "https://www.virtualbox.org/wiki/Downloads",
-            "Docker": "https://www.docker.com/products/docker-desktop"
-        }
+        return "https://docs.docker.com/engine/install/"
     else:
         return None
 
-def main():
-    os_type = platform.system()
-    print(f"Vous êtes sur {os_type}.")
-
-    # Vérification de VirtualBox
-    if not is_virtualbox_installed():
-        print("VirtualBox n'est pas installé.")
-        print(f"Vous pouvez le télécharger ici : {install_links(os_type)['VirtualBox']}")
-    else:
-        print("VirtualBox est installé.")
-
-    # Vérification de Docker
+def check_docker(os_type):
     if not is_docker_installed():
-        print("Docker n'est pas installé.")
-        print(f"Vous pouvez le télécharger ici : {install_links(os_type)['Docker']}")
+        print_error("Docker n'est pas installé.")
+        print_info(f"Vous pouvez le télécharger ici : {install_links(os_type)}")
     else:
-        # Vérification si le service Docker est en cours d'exécution
-        if not is_docker_service_running():
-            print("Le service Docker n'est pas actif. Tentative de démarrage...")
-            try:
-                if os_type == "Linux":
-                    subprocess.run(['sudo', 'systemctl', 'start', 'docker'], check=True)
-                    print("Le service Docker a été démarré.")
-                elif os_type == "Windows":
-                    subprocess.run(['sc', 'start', 'docker'], check=True)
-                    print("Le service Docker a été démarré.")
-            except subprocess.CalledProcessError:
-                print("Erreur lors du démarrage du service Docker.")
+        print_success("Docker est installé.")
+        docker_status = is_docker_service_running()
+        if docker_status:
+            print_success("Le service Docker est actif et fonctionne correctement.")
         else:
-            print("Le service Docker est actif.")
-
-if __name__ == "__main__":
-    main()
+            print_error("Docker est installé, mais il y a un problème avec le service.")
+            print_info("Veuillez vérifier que le service Docker est démarré et qu'il fonctionne correctement.")
+            print_info("Vous pouvez essayer de redémarrer Docker ou consulter les logs pour plus d'informations.")
