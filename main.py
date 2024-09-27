@@ -12,7 +12,7 @@ def print_menu():
 
 def main():
     os_type = platform.system()
-    print(f"Vous êtes sur {os_type}.")
+    print(Fore.GREEN + Style.BRIGHT + f"Vous êtes sur {os_type}.")
 
     vbox_ok = check_virtualbox(os_type)
     docker_ok = check_docker(os_type)
