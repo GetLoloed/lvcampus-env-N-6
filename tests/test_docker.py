@@ -1,7 +1,9 @@
 import pytest
 import subprocess
 import platform
-from docker import is_virtualbox_installed, is_docker_installed, is_docker_service_running
+from docker import is_docker_installed, is_docker_service_running
+from vbox import is_virtualbox_installed
+
 
 # Mocking subprocess.run for testing purposes
 @pytest.fixture(autouse=True)
