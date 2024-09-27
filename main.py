@@ -1,6 +1,6 @@
 import platform
 from docker import check_docker, create_docker_container
-from vbox import check_virtualbox
+from vbox import check_virtualbox, vbox_install
 from colorama import init, Fore, Style
 
 init(autoreset=True)
@@ -8,7 +8,8 @@ init(autoreset=True)
 def print_menu():
     print(Fore.CYAN + Style.BRIGHT + "Menu principal:")
     print("1. Créer un conteneur Docker")
-    print("2. Quitter")
+    print("2. Créer une machine virtuelle")
+    print("3. Quitter")
 
 def main():
     os_type = platform.system()
@@ -20,11 +21,13 @@ def main():
     if vbox_ok and docker_ok:
         while True:
             print_menu()
-            choice = input("Choisissez une option (1-2): ")
+            choice = input("Choisissez une option (1-3): ")
             
             if choice == "1":
                 create_docker_container()
             elif choice == "2":
+                vbox_install()
+            elif choice == "3":
                 print(Fore.YELLOW + "Au revoir!")
                 break
             else:
@@ -38,3 +41,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
