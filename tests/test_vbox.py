@@ -3,6 +3,7 @@ import requests
 import subprocess
 import os
 from vbox import vbox_install, create_virtual_machine, is_virtualbox_installed
+import tempfile
 
 @pytest.mark.parametrize("choix_installation, nom_vm", [
     ("1", "test_vm"),  
@@ -26,6 +27,9 @@ def test_vbox_install_creer_vm(mocker, choix_installation, nom_vm):
     
     # Simuler wget pour éviter le téléchargement réel
     mocker.patch("vbox.wget", return_value="chemin/simule/de/iso")
+    
+    # Simuler tempfile.gettempdir
+    mocker.patch("tempfile.gettempdir", return_value="/tmp")
     
     # Appeler la fonction vbox_install
     vbox_install()

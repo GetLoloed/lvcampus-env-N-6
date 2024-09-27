@@ -4,6 +4,7 @@ import platform
 import requests
 from colorama import init, Fore, Style
 from urllib.parse import urlparse
+import tempfile
 
 def wget(url, output_directory='.'):
     try:
@@ -43,7 +44,7 @@ def create_virtual_machine():
         vboxmanage = r"C:\Program Files\Oracle\VirtualBox\VBoxManage.exe"
         print("Téléchargement de VirtualBox sur Windows...")
         virtualBoxUrl = "https://download.virtualbox.org/virtualbox/7.0.10/VirtualBox-7.0.10-158379-Win.exe"
-        destination = os.path.join(os.environ['TEMP'], "VirtualBoxInstaller.exe")
+        destination = os.path.join(tempfile.gettempdir(), "VirtualBoxInstaller.exe")
         try:
             print("Vérification de l'installation de VirtualBox...")
             try:
