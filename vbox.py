@@ -37,8 +37,10 @@ def install_links(os_type):
     return "https://www.virtualbox.org/wiki/Downloads"
 
 def check_virtualbox(os_type):
-    if not is_virtualbox_installed():
+    if is_virtualbox_installed():
+        print_success("VirtualBox est installé.")
+        return True
+    else:
         print_error("VirtualBox n'est pas installé.")
         print_info(f"Vous pouvez le télécharger ici : {install_links(os_type)}")
-    else:
-        print_success("VirtualBox est installé.")
+        return False
